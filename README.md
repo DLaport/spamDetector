@@ -1,1 +1,2 @@
 # spamDetector
+skg,r
