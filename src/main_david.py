@@ -10,10 +10,7 @@ url = "../data/spambase/spambase.data"
 
 
 namesCat = []
-with open('../data/spambase/spambase.name') as my_file:
-    spamreader = csv.reader(my_file,delimiter=',',quotechar='~')
-    for line in spamreader:
-        namesCat.append(line[0].strip())
+
 #data = pd.read_csv(url, names=namesCat)
 
 data = pd.read_csv("../data/spambase/spambase.data", header=None)
@@ -21,6 +18,9 @@ data.columns = ["V"+str(i) for i in range(1, len(data.columns)+1)]  # rename col
 data.V1 = data.V1.astype(str)
 X = data.loc[:, "V2":]  # independent variables data
 y = data.V1  # dependednt variable data
+pd.tools.plotting.scatter_matrix(data.loc[:, "V58":], diagonal="kde")
+plt.tight_layout()
+plt.show()
 print(data)
 
 
