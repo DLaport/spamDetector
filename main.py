@@ -5,7 +5,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.feature_selection import VarianceThreshold
 from sklearn.feature_selection import SelectKBest
-from sklearn.feature_selection import chi2
+from sklearn.feature_selection import f_classif, mutual_info_classif, f_regression
+from sklearn.ensemble import ExtraTreesClassifier
+
+from sklearn.svm import LinearSVC
+from sklearn.datasets import load_iris
+from sklearn.feature_selection import SelectFromModel
 
 data = pd.read_csv('spambase.data',header = None)
 
@@ -50,20 +55,30 @@ for i in range(56):
 sel = VarianceThreshold(threshold=(3 * (1 - 3)))
 sel.fit_transform(data)
 
-print(data)
-
 data[data.columns[57]].value_counts(1)
 
 target = data[data.columns[-1]]
 X = data.drop(data.columns[-1],axis = 1)
 
-print(X.shape)
-
-X_new = SelectKBest(chi2, k=2).fit_transform(X, target)
-print(X_new.shape)
+#X_new = SelectKBest(f_regression, k=50).fit_transform(X, target)
+#print(X_new.shape)
 
 #X = X_new
 
+#lsvc = LinearSVC(C=0.009, penalty="l1", dual=False).fit(X, target)
+#model = SelectFromModel(lsvc, prefit=True)
+#X_new = model.transform(X)
+
+#X = X_new
+
+clf = ExtraTreesClassifier()
+clf = clf.fit(X, target)
+clf.feature_importances_
+model = SelectFromModel(clf, prefit=True)
+X_new = model.transform(X)
+X_new.shape
+
+X = X_new
 
 from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X,target, test_size=0.2, random_state=42)
