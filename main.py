@@ -3,7 +3,9 @@ os.chdir('./spambase/')
 
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
+from sklearn.feature_selection import VarianceThreshold
+from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import chi2
 
 data = pd.read_csv('spambase.data',header = None)
 
@@ -16,6 +18,8 @@ data.head()
 data.describe()
 
 # DATA CLEANING
+
+## Trying manually to remove meaningless features
 names = pd.read_csv('spambase.formatted_names', header = None)[0]
 
 spam = data.loc[data[57] == 1]
@@ -37,18 +41,29 @@ plt.ylim(0, 3)
 names_ratios = [(names[i], means_ratios[i]) for i in range(0,56)]
 sorted_ratios = sorted(names_ratios, key=lambda nr: nr[1])
 
-print(sorted_ratios)
-
 for i in range(56):
-    if means_ratios[i] < 20:
+    if means_ratios[i] > 20:
         data.drop(i, 1)
+
+## Using SKlearn functions
+
+sel = VarianceThreshold(threshold=(3 * (1 - 3)))
+sel.fit_transform(data)
+
+print(data)
 
 data[data.columns[57]].value_counts(1)
 
 target = data[data.columns[-1]]
 X = data.drop(data.columns[-1],axis = 1)
 
-X.shape
+print(X.shape)
+
+X_new = SelectKBest(chi2, k=2).fit_transform(X, target)
+print(X_new.shape)
+
+#X = X_new
+
 
 from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X,target, test_size=0.2, random_state=42)
