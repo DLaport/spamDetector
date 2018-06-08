@@ -2,6 +2,9 @@ import main
 
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+import pandas as pd
 
 
 def wordcloud():
@@ -37,5 +40,30 @@ def wordcloud():
     plt.show()
 
 
+def capital_runs():
+
+    df = main.data
+    plt.subplot(131)
+    sns.boxplot(x=df["is_spam"], y=df["capital_run_length_average"], showfliers=False, linewidth=5)
+    plt.subplot(132)
+    sns.boxplot(x=df["is_spam"], y=df["capital_run_length_longest"], showfliers=False, linewidth=5)
+    plt.subplot(133)
+    sns.boxplot(x=df["is_spam"], y=df["capital_run_length_total"], showfliers=False, linewidth=5)
+    plt.show()
 
 
+def matrixes(matrix):
+    for key in matrix:
+       print_confusion_matrix(key, matrix[key])
+    #plt.show()
+
+
+def print_confusion_matrix(title, confusion_matrix, figsize=(10, 7), fontsize=14):
+    df_cm = pd.DataFrame(confusion_matrix)
+    fig = plt.figure(figsize=figsize)
+    heatmap = sns.heatmap(df_cm, annot=True, fmt="d", cbar=False)
+    heatmap.yaxis.set_ticklabels(['False', "True"], rotation=0, ha='right', fontsize=fontsize)
+    heatmap.xaxis.set_ticklabels(['False', "True"], rotation=45, ha='right', fontsize=fontsize)
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+    plt.title(title)

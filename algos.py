@@ -3,38 +3,72 @@ import main
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from xgboost import XGBClassifier
-from sklearn.metrics import accuracy_score, precision_score,recall_score, f1_score,roc_auc_score
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, confusion_matrix
+
+from sklearn.svm import LinearSVC
+from sklearn.naive_bayes import GaussianNB, MultinomialNB
+from sklearn.svm import SVC
+from sklearn.neighbors import KNeighborsClassifier
+
+chosen_algos = [
+    ("Logistic Regression", LogisticRegression()),
+    ("Random Forest Classifier", RandomForestClassifier()),
+    ("XGB Classifier", XGBClassifier())
+]
 
 
-def is_ambiguous(element):
-    return 0.4 < element < 0.6
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.datasets import make_moons, make_circles, make_classification
+from sklearn.neural_network import MLPClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
+from sklearn.gaussian_process import GaussianProcessClassifier
+from sklearn.gaussian_process.kernels import RBF
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 
-def is_obvious(element):
-    return element < 0.1 or element > 0.9
+classifiers = [
+    ("Nearest Neighbors", KNeighborsClassifier(3)),
+    ("Linear SVM", SVC(kernel="linear", C=0.025)),
+    ("RBF SVM", SVC(gamma=2, C=1)),
+    ("Decision Tree", DecisionTreeClassifier(max_depth=5)),
+    ("Neural Net", MLPClassifier(alpha=1)),
+    ("AdaBoost", AdaBoostClassifier()),
+    ("Naive Bayes", GaussianNB()),
+    ("QDA", QuadraticDiscriminantAnalysis()),
+    ("Logistic Regression", LogisticRegression()),
+    ("Random Forest Classifier", RandomForestClassifier()),
+    ("XGB Classifier", XGBClassifier()),
+]
 
 
-def run_algos():
+def run():
+    return run_algos(classifiers)
 
-    for (name, algo) in [("Logistic Regression", LogisticRegression()),
-                         ("Random Forest Classifier", RandomForestClassifier()),
-                         ("XGB Classifier", XGBClassifier())]:
+
+def run_algos(algo_list):
+    confusion_matrixes = {}
+    for (name, algo) in algo_list:
+
         algo.fit(main.X_train, main.y_train)
         output = algo.predict(main.X_test)
-        probas = algo.predict_proba(main.X_test)
-        ambiguous = [index for index, el in enumerate(probas) if is_ambiguous(el[0])]
-        obvious_LR = [index for index, el in enumerate(probas) if is_obvious(el[0])]
-        accuracy_RF = accuracy_score(main.y_test, output)
-        precision_RF = precision_score(main.y_test, output)
-        recall_RF = recall_score(main.y_test, output)
-        f1_score_RF = f1_score(main.y_test, output)
-        auc_RF = roc_auc_score(main.y_test, output)
-        print(name + ' accuracy ', accuracy_RF, 'precision ', precision_RF, 'recall ', recall_RF, 'f1_score ', f1_score_RF,
-              'auc ', auc_RF)
+        # probas = algo.predict_proba(main.X_test)
+        accuracy = round(accuracy_score(main.y_test, output), 4)*100
+        precision = round(precision_score(main.y_test, output), 4)*100
+        recall = round(recall_score(main.y_test, output), 4)*100
+        f1_score_ = round(f1_score(main.y_test, output), 4)*100
+        auc = round(roc_auc_score(main.y_test, output), 4)*100
 
+        print(name, ':  Accuracy - ', accuracy, ', Precision - ', precision, ', Recall - ', recall,
+              ', F1_score - ', f1_score_, ' AUC - ', auc)
 
-# agreed_upon_ambiguity = set(ambiguous_XG) & set(ambiguous_RF) & set(ambiguous_LR)
-# print(list(agreed_upon_ambiguity))  # algorithms don't agree on which entries are harder to predict
-# agreed_upon_obviousness = set(obvious_XG) & set(obvious_RF) & set(obvious_LR)
-# print(agreed_upon_obviousness)
-# print(len(agreed_upon_obviousness))
+        confusion_matrixes[name] = (confusion_matrix(main.y_test, output))
+
+    return confusion_matrixes
 
